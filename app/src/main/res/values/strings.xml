@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Regain</string>
+    <string name="accessibility_label">Regain Focus Guard</string>
+    <string name="accessibility_description">Regain uses accessibility to detect when you open a blocked app, a Reel, a Short, or a YouTube channel that is not on your allowlist, and shows a focus screen instead. Regain never reads your passwords or personal messages.</string>
+
+    <string name="notif_channel_focus">Focus session</string>
+    <string name="notif_channel_block">Blocker status</string>
+</resources>

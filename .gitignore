@@ -1,0 +1,25 @@
+# Gradle / Android build output
+.gradle/
+build/
+app/build/
+.kotlin/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Local machine config (SDK path, etc.)
+local.properties
+build.log
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Signing material stays on the build machine
+*.jks
+*.keystore
+
+# OS noise
+.DS_Store
+Thumbs.db
