@@ -245,7 +245,7 @@ fun BlockScreen(perms: PermState, onPermissionsChanged: () -> Unit) {
                     value = newChannel,
                     onValueChange = { newChannel = it },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("Channel name, e.g. Physics Wallah", fontSize = 12.sp, color = p.muted) },
+                    placeholder = { Text("Channel name or @handle", fontSize = 12.sp, color = p.muted) },
                     singleLine = true,
                     shape = RoundedCornerShape(14.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -263,7 +263,7 @@ fun BlockScreen(perms: PermState, onPermissionsChanged: () -> Unit) {
                         .clip(RoundedCornerShape(14.dp))
                         .background(if (newChannel.isBlank()) p.cardBorder else p.accent)
                         .clickable(enabled = newChannel.isNotBlank()) {
-                            val name = newChannel.trim()
+                            val name = cleanChannelEntry(newChannel)
                             if (name.isNotEmpty()) {
                                 Store.update { it.copy(allowedChannels = it.allowedChannels + name) }
                                 newChannel = ""
@@ -282,7 +282,7 @@ fun BlockScreen(perms: PermState, onPermissionsChanged: () -> Unit) {
             Spacer(Modifier.height(10.dp))
             if (settings.allowedChannels.isEmpty()) {
                 Text(
-                    "Add every channel you're allowed to study from. While the allowlist is active, any other channel's watch page gets walled off.",
+                    "Add every channel you're allowed to study from. Use the exact channel name or its @handle (a channel URL works too). While the allowlist is active, any other channel's watch page or Shorts gets walled off.",
                     fontSize = 11.5.sp,
                     color = p.muted,
                     lineHeight = 16.sp
@@ -638,3 +638,16 @@ private fun rememberInstalledApps(includeSystem: Boolean): androidx.compose.runt
 }
 
 private val ColorAmber = androidx.compose.ui.graphics.Color(0xFFFFD166)
+
+/**
+ * Accept a plain channel name, an "@handle", or a channel URL and store the
+ * most precise form the matcher can use. URLs are reduced to their @handle when
+ * one is present (for example youtube.com/@PhysicsWallah/videos -> @PhysicsWallah).
+ */
+private fun cleanChannelEntry(raw: String): String {
+    val value = raw.trim()
+    if (value.isEmpty()) return ""
+    val handle = Regex("@[A-Za-z0-9_.\\-]{2,50}").find(value)?.value
+    if (handle != null) return handle
+    return value
+}

@@ -104,6 +104,12 @@ class BlockAccessibilityService : AccessibilityService() {
             try {
                 val root = rootInActiveWindow
                 if (root == null) return@Runnable
+                // The focused window can be our own overlay even though the event came
+                // from YouTube. Reading that tree would look like "no content" and
+                // knock the wall down, so only inspect when the root belongs to the
+                // package that triggered the event.
+                val rootPkg = root.packageName?.toString()
+                if (rootPkg != null && rootPkg != pkg) return@Runnable
                 val verdict = Detector.inspect(root, pkg, Store.settings)
                 if (verdict.block) {
                     Enforcer.onContent(this, pkg, verdict)

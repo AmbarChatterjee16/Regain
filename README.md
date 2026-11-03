@@ -3,7 +3,8 @@
 A fully offline, sideloadable Android app inspired by **Regain: Study Timer for Focus** (EpowerX Labs).
 It is a native Kotlin + Jetpack Compose app, not a web wrapper, so the blocking features actually work.
 
-**APK:** `Regain-1.0.0.apk` (repo root) — also at `app/build/outputs/apk/release/app-release.apk`
+**APK:** `Regain-1.0.1.apk` (repo root) — also at `app/build/outputs/apk/release/app-release.apk`  
+**SHA-256:** `D1807EBC65305D41DF3B5E0EF118DD2F43ADC9476A7EB7A7935E7E9906062814`
 
 ### Your checklist, mapped to the app
 | Requirement | Where it is |
@@ -13,8 +14,8 @@ It is a native Kotlin + Jetpack Compose app, not a web wrapper, so the blocking 
 | Free + Pro unlocked | Every Pro feature is on by default (`proUnlocked = true`); no paywalls or accounts |
 | Block only Instagram Reels (not the app) | **Guard → Block Instagram Reels** |
 | Block only YouTube Shorts (not the app) | **Guard → Block YouTube Shorts** (long-form still plays) |
-| YouTube channel allowlist | **Guard → YouTube mode → Allowlist only** + add channels; non-allowed watch pages are walled |
-| Tuning when Instagram/YouTube change their UI | **Guard → Detection readout** shows the exact accessible text |
+| YouTube channel allowlist | **Guard → YouTube mode → Allowlist only** + add channels by exact name or `@handle`; non-allowed watch pages **and** Shorts are walled |
+| Tuning when Instagram/YouTube change their UI | **Guard → Detection readout** shows the video/Shorts flags, the detected channel + `@handle`, the allowlist match, and the exact accessible text |
 
 ---
 
@@ -40,11 +41,40 @@ It is a native Kotlin + Jetpack Compose app, not a web wrapper, so the blocking 
 - **Instagram Reels blocker** — Reels tab/viewer is detected from the accessibility tree; the feed stays usable
 - **YouTube Shorts blocker** — Shorts player detected, long-form videos keep working
 - **YouTube channel allowlist** — while active, a watch page is blocked unless the channel is on your list.
-  Browse and search freely; only playback of non-allowed channels is walled off.
-  Detected channel names are collected so you can add them with one tap.
+  Browse and search freely; only playback of non-allowed channels is walled off. Add a channel by its exact
+  display name or its `@handle` (a channel URL is reduced to the handle). Matching ignores case, spaces,
+  punctuation and a leading `@`, and treats “Channel - Topic” as the same channel. Detected channels are
+  collected so you can add them with one tap. Shorts from allowed channels play; every other Short is walled.
+- **Only blocks a channel it can actually identify** — if YouTube has not exposed the channel row yet, a
+  normal watch page is left alone rather than false-positively walling an allowed video. Shorts are the
+  exception: while the allowlist is on, an unidentified Short is blocked because the endless feed is the
+  whole point of the surface.
 - Strict mode also prevents leaving the blocker on for a blocked app, and can lock the Settings app during a session
 - 5-minute temporary unlock escape hatch (disabled in strict mode)
-- Detection readout: shows exactly what text/nodes the app sees, so rules can be verified on-device
+- Detection readout: shows `video`, `shorts`, the detected channel name + `@handle`, whether it matched the
+  allowlist, the row count, and the exact accessible text, so rules can be verified on-device
+
+### How the YouTube allowlist was rebuilt
+The original Regain XAPK (`ai.regainapp`, version 74.1.2100) was unpacked and its accessibility service was
+decompiled with JADX (the same Android engine REA drives). Its Productive Mode / Study Channels logic does
+three things the first version of this clone missed; the detector now ports them:
+
+1. **Row grouping.** Nodes are bucketed by the vertical midpoint of their on-screen bounds, and rows within
+   10 px are merged. Channel identity is read per row, so unrelated text from recommended videos cannot
+   contaminate the match.
+2. **Channel identity.** The name comes from the Subscribe button's accessibility label
+   (`Subscribe to <name>.` / `Unsubscribe from <name>.`) and is confirmed against the channel row. The
+   `@handle` is read from the text/description pair. A geometry fallback (avatar → single text node →
+   subscriber/view count) covers layouts where the Subscribe label is missing; landscape uses
+   `player_video_heading`.
+3. **Matching.** The allowlist compares the normalised display name and `@handle`, including the
+   `- Topic` / `Official` / `Music` suffixes. Matching is case-, space- and punctuation-insensitive, so
+   `Physics Wallah`, `physicswallah` and `@physicswallah` all match.
+
+Verified end-to-end on an Android 14 emulator with a probe app exposing YouTube's view ids
+(`watch_panel_scrim`, `player_video_heading`, `reel_recycler`) and tree shape: allowed name → no wall,
+allowed handle → no wall, unknown channel → wall, home feed → no wall, allowed Shorts → no wall,
+unknown Shorts → wall.
 
 ### Android limitations, stated plainly
 - Android has no public "which screen is this" API. Reels/Shorts/channel detection is **heuristic** based on the
@@ -60,7 +90,7 @@ It is a native Kotlin + Jetpack Compose app, not a web wrapper, so the blocking 
 
 ## Install on your phone
 
-1. Copy `app/build/outputs/apk/release/app-release.apk` to the phone (USB, Drive, Telegram, whatever).
+1. Copy `Regain-1.0.1.apk` to the phone (USB, Drive, Telegram, whatever).
 2. Tap it and allow "install unknown apps" for the file manager/browser you used.
 3. Open Regain → **Guard** tab and grant, in this order:
    - **Display over other apps** (needed for the focus wall)
