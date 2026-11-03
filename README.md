@@ -85,7 +85,9 @@ gradle assembleRelease
 ```
 
 The release build is signed with `app/regain-release.jks` (store/key password `regainclone`) so the APK
-installs directly. Replace it with your own keystore for real distribution.
+installs directly. That keystore is intentionally **not committed** (see `.gitignore`); if it is missing,
+the release build falls back to the debug key so a fresh clone still compiles. Replace it with your own
+keystore for real distribution.
 
 ### Project layout
 
