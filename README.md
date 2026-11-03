@@ -6,17 +6,6 @@ It is a native Kotlin + Jetpack Compose app, not a web wrapper, so the blocking 
 **APK:** `Regain-1.0.1.apk` (repo root) — also at `app/build/outputs/apk/release/app-release.apk`  
 **SHA-256:** `D1807EBC65305D41DF3B5E0EF118DD2F43ADC9476A7EB7A7935E7E9906062814`
 
-### Your checklist, mapped to the app
-| Requirement | Where it is |
-| --- | --- |
-| Installable APK | Signed `Regain-1.0.0.apk`, package `ai.regain.clone`, minSdk 26 |
-| Real blocking, no simulation | `AccessibilityService` + full-screen `TYPE_APPLICATION_OVERLAY` wall + UsageStats watchdog |
-| Free + Pro unlocked | Every Pro feature is on by default (`proUnlocked = true`); no paywalls or accounts |
-| Block only Instagram Reels (not the app) | **Guard → Block Instagram Reels** |
-| Block only YouTube Shorts (not the app) | **Guard → Block YouTube Shorts** (long-form still plays) |
-| YouTube channel allowlist | **Guard → YouTube mode → Allowlist only** + add channels by exact name or `@handle`; non-allowed watch pages **and** Shorts are walled |
-| Tuning when Instagram/YouTube change their UI | **Guard → Detection readout** shows the video/Shorts flags, the detected channel + `@handle`, the allowlist match, and the exact accessible text |
-
 ---
 
 ## What's inside
